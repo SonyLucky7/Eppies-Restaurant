@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, MouseEvent } from "react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Phone,
   Car,
@@ -35,7 +35,6 @@ const heroScenes = [
 
 export function InteractiveMotionHero() {
   const [activeScene, setActiveScene] = useState(0);
-  const containerRef = useRef<HTMLElement>(null);
 
   // Auto-scroll / transition background scenes smoothly every 5.5 seconds
   useEffect(() => {
@@ -52,62 +51,20 @@ export function InteractiveMotionHero() {
     return () => clearInterval(interval);
   }, []);
 
-  // 3D Parallax Tilt with Damped Spring Physics
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { damping: 30, stiffness: 180, mass: 0.6 };
-
-  // Background shifts gently in the opposite direction of mouse
-  const bgX = useSpring(useTransform(mouseX, [-0.5, 0.5], [20, -20]), springConfig);
-  const bgY = useSpring(useTransform(mouseY, [-0.5, 0.5], [14, -14]), springConfig);
-
-  // Foreground text has subtle optical 3D tilt
-  const textRotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), springConfig);
-  const textRotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
-
-  // Interactive subtle lighting glow following cursor
-  const cursorGlowX = useSpring(useTransform(mouseX, [-0.5, 0.5], ["30%", "70%"]), springConfig);
-  const cursorGlowY = useSpring(useTransform(mouseY, [-0.5, 0.5], ["30%", "70%"]), springConfig);
-
-  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    mouseX.set(x);
-    mouseY.set(y);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
   const currentScene = heroScenes[activeScene];
 
   return (
     <section
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       className="relative min-h-[92vh] sm:min-h-screen w-full flex items-center justify-center overflow-hidden bg-brown-900 pt-28 pb-20 px-6 sm:px-12 select-none"
     >
-      {/* ─── Full-Covered 4K Background Image with Smooth Crossfade & Parallax ─── */}
-      <motion.div
-        style={{
-          x: bgX,
-          y: bgY,
-          scale: 1.08,
-        }}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-      >
+      {/* ─── Full-Covered 4K Background Image with Smooth Crossfade (Rock-Solid / No Cursor Drift) ─── */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none">
         <AnimatePresence mode="popLayout">
           <motion.img
             key={currentScene.id}
             src={currentScene.image}
             alt={currentScene.alt}
-            initial={{ opacity: 0, scale: 1.04 }}
+            initial={{ opacity: 0, scale: 1.03 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
@@ -123,26 +80,10 @@ export function InteractiveMotionHero() {
         {/* Subtle Scrim Gradient: Keeps 4K Food Photos Bright, Crisp & Highlighted */}
         <div className="absolute inset-0 bg-black/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
+      </div>
 
-        {/* Subtle Interactive Ambient Lighting Highlight */}
-        <motion.div
-          style={{
-            left: cursorGlowX,
-            top: cursorGlowY,
-          }}
-          className="absolute -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none"
-        />
-      </motion.div>
-
-      {/* ─── Foreground: Simple, Refined 2-Line Hero Text (Image is Hero) ─── */}
-      <motion.div
-        style={{
-          rotateX: textRotateX,
-          rotateY: textRotateY,
-          transformStyle: "preserve-3d",
-        }}
-        className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center space-y-6"
-      >
+      {/* ─── Foreground: Simple, Refined 2-Line Hero Text (Clean & Static) ─── */}
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center space-y-6">
         {/* Simple, Refined 1-2 Line Headline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -205,7 +146,7 @@ export function InteractiveMotionHero() {
             <span>ADA Accessible</span>
           </div>
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* ─── Minimal Unobtrusive Auto-Scroll Pagination Indicators (Bottom Center) ─── */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
