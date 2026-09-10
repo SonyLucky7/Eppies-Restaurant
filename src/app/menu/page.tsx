@@ -32,6 +32,31 @@ export default function MenuPage() {
     return menuCategories.flatMap((c) => c.items);
   }, []);
 
+  // Helper classification functions
+  const isVegetarianItem = (item: MenuItem) => {
+    return (
+      item.dietary?.some((d) => /vegetarian/i.test(d)) ||
+      item.category === "desserts-beverages" ||
+      /pancake|french toast|veggie|zucchini|pie|cheesecake|coffee/i.test(item.name)
+    );
+  };
+
+  const isHeartyItem = (item: MenuItem) => {
+    return (
+      item.dietary?.some((d) => /hearty|beef|steak|rib|meat|pork/i.test(d)) ||
+      item.category === "weekly-specials" ||
+      item.category === "steaks-seafood" ||
+      /platter|steak|burger|ribs|meatloaf|roast beef|country fried|benedict|club/i.test(item.name)
+    );
+  };
+
+  const isPopularItem = (item: MenuItem) => {
+    return (
+      item.popular === true ||
+      /legend|favorite|best seller|choice|king|top rated|crowd favorite/i.test(item.badge || "")
+    );
+  };
+
   // Filtered items
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
@@ -40,13 +65,13 @@ export default function MenuPage() {
         return false;
       }
       // Tag filter
-      if (selectedFilter === "popular" && !item.popular) {
+      if (selectedFilter === "popular" && !isPopularItem(item)) {
         return false;
       }
-      if (selectedFilter === "vegetarian" && !item.dietary?.some((d) => d.toLowerCase().includes("vegetarian"))) {
+      if (selectedFilter === "vegetarian" && !isVegetarianItem(item)) {
         return false;
       }
-      if (selectedFilter === "hearty" && !item.dietary?.some((d) => d.toLowerCase().includes("hearty") || d.toLowerCase().includes("steak") || d.toLowerCase().includes("portion"))) {
+      if (selectedFilter === "hearty" && !isHeartyItem(item)) {
         return false;
       }
       // Search query
@@ -61,21 +86,77 @@ export default function MenuPage() {
     });
   }, [allItems, selectedCategory, selectedFilter, searchQuery]);
 
+  // Live matching item counts for filter chips
+  const filterCounts = useMemo(() => {
+    const scopeItems = selectedCategory === "all"
+      ? allItems
+      : allItems.filter((i) => i.category === selectedCategory);
+
+    return {
+      all: scopeItems.length,
+      popular: scopeItems.filter(isPopularItem).length,
+      vegetarian: (selectedCategory === "all" ? allItems : scopeItems).filter(isVegetarianItem).length,
+      hearty: (selectedCategory === "all" ? allItems : scopeItems).filter(isHeartyItem).length,
+    };
+  }, [allItems, selectedCategory]);
+
+  // Intelligent Category Switcher: resets filter if no matches exist in target category
+  const handleCategorySelect = (catId: string) => {
+    setSelectedCategory(catId);
+    if (selectedFilter !== "all") {
+      const itemsInCat = catId === "all" ? allItems : allItems.filter((i) => i.category === catId);
+      const hasMatches = itemsInCat.some((item) => {
+        if (selectedFilter === "popular") return isPopularItem(item);
+        if (selectedFilter === "vegetarian") return isVegetarianItem(item);
+        if (selectedFilter === "hearty") return isHeartyItem(item);
+        return true;
+      });
+      if (!hasMatches) {
+        setSelectedFilter("all");
+      }
+    }
+  };
+
+  // Intelligent Filter Switcher: auto-switches to "all" categories if current category has 0 matches
+  const handleFilterSelect = (filterId: string) => {
+    if (filterId === "all") {
+      setSelectedFilter("all");
+      return;
+    }
+    const itemsInCat = selectedCategory === "all" ? allItems : allItems.filter((i) => i.category === selectedCategory);
+    const countInCat = itemsInCat.filter((item) => {
+      if (filterId === "popular") return isPopularItem(item);
+      if (filterId === "vegetarian") return isVegetarianItem(item);
+      if (filterId === "hearty") return isHeartyItem(item);
+      return true;
+    }).length;
+
+    if (countInCat === 0) {
+      setSelectedCategory("all");
+    }
+    setSelectedFilter(filterId);
+  };
+
+  const currentCategoryInfo = menuCategories.find((c) => c.id === selectedCategory);
+
   return (
     <div className="min-h-screen pt-28 pb-32 bg-ivory text-brown-900">
       {/* ─── Hero Header ─────────────────────────────────────── */}
-      <section className="relative px-6 max-w-7xl mx-auto text-center pb-12">
+      <section className="relative px-6 max-w-7xl mx-auto text-center pb-8">
         <SectionReveal>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cream border border-brown-200/60 mb-6 text-xs font-mono uppercase tracking-widest text-terracotta">
-            <Sparkles size={13} />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cream border border-brown-200/70 mb-6 text-xs font-semibold tracking-wider text-terracotta shadow-sm">
+            <Sparkles size={14} />
             <span>Farm-Fresh & Made to Order · Since 1980s</span>
           </div>
 
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-brown-900 text-balance">
+          <h1
+            className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-brown-900 text-balance"
+            style={{ fontFamily: "var(--font-display), 'Playfair Display', Georgia, serif" }}
+          >
             Our Kitchen Menu
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-brown-400 max-w-2xl mx-auto leading-relaxed">
-            Prepared with care, hearty portions, and generous hospitality. Every dish is cooked fresh to order.
+          <p className="mt-4 text-lg md:text-xl text-brown-700 max-w-2xl mx-auto leading-relaxed font-body">
+            Prepared with care, hearty portions, and generous hospitality. Every single dish is cooked fresh to order from 7:00 AM.
           </p>
         </SectionReveal>
 
@@ -93,12 +174,12 @@ export default function MenuPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search pancakes, prime rib, burgers, eggs..."
-                className="w-full pl-11 pr-10 py-3.5 bg-warm-white border border-brown-200 rounded-full text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-terracotta shadow-sm transition-all"
+                className="w-full pl-11 pr-10 py-3.5 bg-warm-white border border-brown-200 rounded-xl text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-terracotta shadow-sm transition-all font-body"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brown-400 hover:text-brown-700 p-1"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brown-400 hover:text-brown-700 p-1 cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -106,10 +187,10 @@ export default function MenuPage() {
             </div>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-2 bg-cream p-1.5 rounded-full border border-brown-200/50 self-end md:self-auto">
+            <div className="flex items-center gap-2 bg-cream p-1.5 rounded-xl border border-brown-200/70 self-end md:self-auto shadow-sm">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "grid"
                     ? "bg-terracotta text-white shadow-sm"
                     : "text-brown-700 hover:text-terracotta"
@@ -120,7 +201,7 @@ export default function MenuPage() {
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "list"
                     ? "bg-terracotta text-white shadow-sm"
                     : "text-brown-700 hover:text-terracotta"
@@ -133,14 +214,14 @@ export default function MenuPage() {
           </div>
         </SectionReveal>
 
-        {/* ─── Category Tabs ──────────────────────────────────── */}
-        <div className="mt-8 flex gap-2 overflow-x-auto pb-2 justify-start md:justify-center scrollbar-none">
+        {/* ─── Category Tabs (Clean Wrap, No Clipping) ────────── */}
+        <div className="mt-8 flex flex-wrap gap-2.5 items-center justify-center max-w-5xl mx-auto px-2">
           <button
-            onClick={() => setSelectedCategory("all")}
-            className={`px-5 py-2.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+            onClick={() => handleCategorySelect("all")}
+            className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
               selectedCategory === "all"
-                ? "bg-brown-900 text-white shadow-md scale-105"
-                : "bg-cream text-brown-700 hover:bg-brown-100 border border-brown-200/40"
+                ? "bg-brown-900 text-white shadow-md font-bold ring-2 ring-brown-900 ring-offset-2 scale-105"
+                : "bg-warm-white text-brown-700 hover:bg-cream border border-brown-200/80 shadow-sm"
             }`}
           >
             All Items ({allItems.length})
@@ -148,11 +229,11 @@ export default function MenuPage() {
           {menuCategories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-5 py-2.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+              onClick={() => handleCategorySelect(cat.id)}
+              className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                 selectedCategory === cat.id
-                  ? "bg-brown-900 text-white shadow-md scale-105"
-                  : "bg-cream text-brown-700 hover:bg-brown-100 border border-brown-200/40"
+                  ? "bg-brown-900 text-white shadow-md font-bold ring-2 ring-brown-900 ring-offset-2 scale-105"
+                  : "bg-warm-white text-brown-700 hover:bg-cream border border-brown-200/80 shadow-sm"
               }`}
             >
               {cat.name} ({cat.items.length})
@@ -160,38 +241,99 @@ export default function MenuPage() {
           ))}
         </div>
 
-        {/* ─── Quick Filter Chips ─────────────────────────────── */}
-        <div className="mt-4 flex flex-wrap gap-2 justify-center">
+        {/* ─── Quick Filter Chips with Real Counts ────────────── */}
+        <div className="mt-4 flex flex-wrap gap-2.5 justify-center items-center">
           {[
-            { id: "all", label: "Show All" },
-            { id: "popular", label: "⭐ Most Popular / House Legends" },
-            { id: "vegetarian", label: "🌿 Vegetarian" },
-            { id: "hearty", label: "🥩 Hearty Platters" },
+            { id: "all", label: "Show All", count: filterCounts.all },
+            { id: "popular", label: "⭐ Most Popular / House Legends", count: filterCounts.popular },
+            { id: "vegetarian", label: "🌿 Vegetarian", count: filterCounts.vegetarian },
+            { id: "hearty", label: "🥩 Hearty Platters", count: filterCounts.hearty },
           ].map((chip) => (
             <button
               key={chip.id}
-              onClick={() => setSelectedFilter(chip.id)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+              onClick={() => handleFilterSelect(chip.id)}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-2 ${
                 selectedFilter === chip.id
-                  ? "bg-terracotta/15 text-terracotta border border-terracotta/40 font-semibold"
-                  : "bg-warm-white text-brown-400 hover:text-brown-700 border border-brown-100"
+                  ? "bg-terracotta text-white shadow-md font-semibold scale-105"
+                  : "bg-warm-white text-brown-700 hover:bg-cream border border-brown-200/70 shadow-sm"
               }`}
             >
-              {chip.label}
+              <span>{chip.label}</span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                  selectedFilter === chip.id
+                    ? "bg-white/25 text-white"
+                    : "bg-brown-100 text-brown-700"
+                }`}
+              >
+                {chip.count}
+              </span>
             </button>
           ))}
         </div>
+
+        {/* ─── Active Filter Status & Reset Banner ────────────── */}
+        {(selectedCategory !== "all" || selectedFilter !== "all" || searchQuery.trim()) && (
+          <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-full bg-cream border border-brown-200/80 text-xs text-brown-700 shadow-sm">
+            <span>
+              Showing <strong className="text-brown-900 font-bold">{filteredItems.length}</strong> {filteredItems.length === 1 ? "dish" : "dishes"}
+              {selectedCategory !== "all" && (
+                <> in <strong className="text-brown-900">{currentCategoryInfo?.name}</strong></>
+              )}
+              {selectedFilter !== "all" && (
+                <> with filter <strong className="text-terracotta font-semibold">
+                  {selectedFilter === "popular" ? "Most Popular" : selectedFilter === "vegetarian" ? "Vegetarian" : "Hearty Platters"}
+                </strong></>
+              )}
+            </span>
+            <button
+              onClick={() => {
+                setSelectedCategory("all");
+                setSelectedFilter("all");
+                setSearchQuery("");
+              }}
+              className="ml-2 text-terracotta font-bold underline hover:text-terracotta-dark cursor-pointer text-xs"
+            >
+              Reset all filters
+            </button>
+          </div>
+        )}
       </section>
 
       {/* ─── Main Menu Items Display ─────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-6 mt-6">
+      <div className="max-w-7xl mx-auto px-6 mt-4">
+        {/* Category Header Banner (when specific category active) */}
+        {currentCategoryInfo && selectedCategory !== "all" && (
+          <div className="mb-8 p-6 sm:p-8 bg-cream/80 rounded-[2rem] border border-brown-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div>
+              <span className="text-xs font-mono uppercase tracking-widest text-terracotta font-bold block mb-1">
+                {currentCategoryInfo.tagline}
+              </span>
+              <h2
+                className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-brown-900"
+                style={{ fontFamily: "var(--font-display), 'Playfair Display', Georgia, serif" }}
+              >
+                {currentCategoryInfo.name}
+              </h2>
+              <p className="text-sm sm:text-base text-brown-700 mt-2 max-w-2xl font-body leading-relaxed">
+                {currentCategoryInfo.description}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <span className="px-3.5 py-1.5 rounded-full bg-warm-white border border-brown-200 text-xs font-mono text-brown-700 font-semibold inline-block shadow-sm">
+                {filteredItems.length} Available
+              </span>
+            </div>
+          </div>
+        )}
+
         {filteredItems.length === 0 ? (
           <div className="py-20 text-center bg-cream rounded-3xl border border-brown-100 p-8">
             <Utensils size={40} className="mx-auto text-terracotta mb-4 opacity-70" />
             <h3 className="font-display text-2xl font-semibold text-brown-900">
               No dishes found matching your selection
             </h3>
-            <p className="mt-2 text-sm text-brown-400">
+            <p className="mt-2 text-sm text-brown-700 font-body">
               Try searching for something else or clearing your filters.
             </p>
             <button
@@ -200,7 +342,7 @@ export default function MenuPage() {
                 setSelectedCategory("all");
                 setSelectedFilter("all");
               }}
-              className="mt-6 px-6 py-2.5 bg-terracotta text-white rounded-full text-xs font-medium cursor-pointer"
+              className="mt-6 px-6 py-2.5 bg-terracotta text-white rounded-xl text-xs font-semibold cursor-pointer shadow-sm"
             >
               Reset Filters
             </button>

@@ -83,7 +83,8 @@ export const menuCategories: MenuCategory[] = [
         image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
         calories: '780 cal',
         badge: 'Weekend Favorite',
-        dietary: ['Contains Eggs & Dairy'],
+        popular: true,
+        dietary: ['Hearty Platter', 'Weekend Favorite'],
         preparation: 'Soft poached eggs draped in scratch-made hollandaise',
         ingredients: ['English Muffin', 'Canadian Bacon', 'Hass Avocado', 'Scratch Hollandaise', 'Chives'],
         portion: '2 Open-Faced Halves'
@@ -106,7 +107,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '680 cal',
         badge: 'Top Rated',
         popular: true,
-        dietary: ['High Protein', 'Gluten-Conscious'],
+        dietary: ['Hearty Platter', 'High Protein'],
         preparation: 'Hand-whipped 3 eggs folded with sauteed vegetables',
         ingredients: ['Farm Eggs', 'Honey Ham', 'Sweet Bell Peppers', 'Yellow Onions', 'Wisconsin Cheddar'],
         portion: '3 Extra Large Eggs'
@@ -120,6 +121,7 @@ export const menuCategories: MenuCategory[] = [
         image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
         calories: '540 cal',
         badge: 'Vegetarian',
+        popular: true,
         dietary: ['Vegetarian', 'Fresh & Healthy'],
         preparation: 'Tossed with local garden herbs and light olive oil',
         ingredients: ['Baby Spinach', 'Cremini Mushrooms', 'Roma Tomatoes', 'Jack Cheese', 'Fresh Avocado'],
@@ -135,7 +137,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '1,050 cal',
         badge: 'Crowd Favorite',
         popular: true,
-        dietary: ['Hearty Diner Classic'],
+        dietary: ['Hearty Platter', 'Crowd Favorite'],
         preparation: 'Golden breaded cube steak with peppered cream gravy',
         ingredients: ['Black Angus Beef', 'Cracked Pepper Batter', 'Sage Sausage Gravy', 'Crisp Hash Browns'],
         portion: 'Giant 8oz Steak Cut'
@@ -158,7 +160,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '920 cal',
         badge: '#1 Best Seller',
         popular: true,
-        dietary: ['100% Fresh Angus Beef'],
+        dietary: ['Hearty Platter', '100% Fresh Angus Beef'],
         preparation: 'Seared to juicy perfection on high heat',
         ingredients: ['8oz Angus Beef', 'Thick Bacon', 'Wisconsin Cheddar', 'Heirloom Tomato', 'Secret Eppies Sauce'],
         portion: 'Half-Pound Burger with Fries'
@@ -173,7 +175,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '760 cal',
         badge: 'Lunch Legend',
         popular: true,
-        dietary: ['House Roasted Meats'],
+        dietary: ['Hearty Platter', 'House Roasted Meats'],
         preparation: 'Triple layered on grilled artisan sourdough bread',
         ingredients: ['Oven-Roasted Turkey', 'Deli Ham', 'Bacon', 'Swiss Cheese', 'San Francisco Sourdough'],
         portion: '3-Layer Cut Quartered'
@@ -187,7 +189,8 @@ export const menuCategories: MenuCategory[] = [
         image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
         calories: '840 cal',
         badge: 'Comfort Food',
-        dietary: ['Homestyle Classic'],
+        popular: true,
+        dietary: ['Hearty Platter', 'Homestyle Classic'],
         preparation: 'Slow-braised roast beef with simmered au jus gravy',
         ingredients: ['Slow Roasted Chuck', 'Texas Toast', 'Rich Pan Gravy', 'Yukon Gold Mash'],
         portion: 'Hearty Open Face Platter'
@@ -201,6 +204,7 @@ export const menuCategories: MenuCategory[] = [
         image: 'https://images.unsplash.com/photo-1639024471287-032f66e061e5?auto=format&fit=crop&w=800&q=80',
         calories: '490 cal',
         badge: 'Shareable Starter',
+        popular: true,
         dietary: ['Vegetarian', 'Great to Share'],
         preparation: 'Fried in fresh clean oil until shatteringly crisp',
         ingredients: ['Colossal Walla Walla Onions', 'Crisp Zucchini', 'House Ranch Dip'],
@@ -224,7 +228,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '780 cal',
         badge: 'Wednesdays Only',
         popular: true,
-        dietary: ['40-Year Secret Recipe', 'Staff Favorite'],
+        dietary: ['Hearty Platter', '40-Year Secret Recipe'],
         preparation: 'Baked fresh every Wednesday morning',
         ingredients: ['Angus Beef & Pork', 'Sweet Tomato Glaze', 'Idaho Potatoes', 'Sweet Cream Butter'],
         portion: 'Two Generous Slices'
@@ -239,7 +243,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '960 cal',
         badge: 'Thursdays Only',
         popular: true,
-        dietary: ['Hickory Smoked', 'Fall-Off-The-Bone'],
+        dietary: ['Hearty Platter', 'Hickory Smoked'],
         preparation: '6-hour hickory smoke finished with BBQ char',
         ingredients: ['St. Louis Cut Ribs', 'House Hickory Rub', 'Smoked Honey BBQ Sauce', 'Crisp Slaw'],
         portion: 'Half Rack or Full Rack Option'
@@ -254,7 +258,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '1,020 cal',
         badge: 'Friday Night King',
         popular: true,
-        dietary: ['USDA Choice Beef', 'Starts at 4:00 PM'],
+        dietary: ['Hearty Platter', 'USDA Choice Beef'],
         preparation: 'Slow roasted at low temperature for 8 hours',
         ingredients: ['USDA Choice Ribeye Roast', 'Fresh Rosemary & Thyme', 'Simmered Au Jus', 'Horseradish Cream'],
         portion: 'Thick Hand-Carved 12oz Cut'
@@ -277,7 +281,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '620 cal',
         badge: 'Seafood Choice',
         popular: true,
-        dietary: ['Heart Healthy', 'Omega-3 Rich', 'Gluten-Conscious'],
+        dietary: ['Hearty Platter', 'Heart Healthy', 'Omega-3 Rich'],
         preparation: 'Flame grilled with fresh lemon and dill butter',
         ingredients: ['Pacific Salmon Fillet', 'Lemon Herb Butter', 'Wild Rice', 'Garden Vegetables'],
         portion: '8oz Fresh Fillet'
@@ -292,7 +296,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '880 cal',
         badge: 'Guest Favorite',
         popular: true,
-        dietary: ['Crisp Batter', 'Scratch Tartar'],
+        dietary: ['Hearty Platter', 'Crisp Batter'],
         preparation: 'Hand dipped to order for maximum crunch',
         ingredients: ['Atlantic Cod Loins', 'Pale Ale Batter', 'House Tartar Sauce', 'Malt Vinegar'],
         portion: '3 Jumbo Fillets with Fries'
@@ -306,7 +310,8 @@ export const menuCategories: MenuCategory[] = [
         image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
         calories: '890 cal',
         badge: 'Steakhouse Cut',
-        dietary: ['100% USDA Choice', 'High Protein'],
+        popular: true,
+        dietary: ['Hearty Platter', '100% USDA Choice', 'High Protein'],
         preparation: 'Flame broiled on cast iron grates',
         ingredients: ['10oz Strip Loin', 'Compound Garlic Butter', 'Baked Russet Potato', 'Sour Cream & Chives'],
         portion: '10oz Steak'
@@ -358,7 +363,7 @@ export const menuCategories: MenuCategory[] = [
         calories: '5 cal',
         badge: 'Free Refills',
         popular: true,
-        dietary: ['Freshly Ground', 'Decaf Available'],
+        dietary: ['Vegetarian', 'Freshly Ground', 'Decaf Available'],
         preparation: 'Brewed every 30 minutes',
         ingredients: ['100% Arabica Colombian Beans', 'Filtered Mountain Water'],
         portion: 'Endless Mug'
