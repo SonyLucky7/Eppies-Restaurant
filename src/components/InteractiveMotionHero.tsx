@@ -120,10 +120,9 @@ export function InteractiveMotionHero() {
           />
         </AnimatePresence>
 
-        {/* Cinematic Multi-Layer Dark Gradients for Typographic Contrast */}
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        {/* Subtle Scrim Gradient: Keeps 4K Food Photos Bright, Crisp & Highlighted */}
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
 
         {/* Subtle Interactive Ambient Lighting Highlight */}
         <motion.div
@@ -135,44 +134,42 @@ export function InteractiveMotionHero() {
         />
       </motion.div>
 
-      {/* ─── Foreground: Balanced Centered Hero Composition ─── */}
+      {/* ─── Foreground: Simple, Refined 2-Line Hero Text (Image is Hero) ─── */}
       <motion.div
         style={{
           rotateX: textRotateX,
           rotateY: textRotateY,
           transformStyle: "preserve-3d",
         }}
-        className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center space-y-8"
+        className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center space-y-6"
       >
-        {/* Main Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[5.5rem] font-bold tracking-tight text-white leading-[1.0] text-balance drop-shadow-xl"
-          style={{ fontFamily: "var(--font-display), 'Playfair Display', Georgia, serif" }}
-        >
-          Good Food. Good People.
-          <br />
-          <span className="italic font-normal text-amber-300">Over 40 Years.</span>
-        </motion.h1>
-
-        {/* Main Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="text-lg sm:text-xl md:text-2xl text-cream/95 max-w-2xl mx-auto leading-relaxed font-body font-normal drop-shadow-md"
-        >
-          A true West Sacramento landmark. From sunrise buttermilk hotcakes and fresh country scrambles to our award-winning hand-carved Friday Night Prime Rib.
-        </motion.p>
-
-        {/* Main Action Buttons */}
+        {/* Simple, Refined 1-2 Line Headline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap gap-4 items-center justify-center pt-2"
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="space-y-2 max-w-3xl mx-auto"
+        >
+          <h1
+            className="font-display text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-[1.08] drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]"
+            style={{ fontFamily: "var(--font-display), 'Playfair Display', Georgia, serif" }}
+          >
+            Good Food. Good People.
+          </h1>
+          <p
+            className="font-display text-2xl sm:text-3xl md:text-4xl italic font-normal text-amber-300 leading-snug drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
+            style={{ fontFamily: "var(--font-display), 'Playfair Display', Georgia, serif" }}
+          >
+            Over 40 Years in West Sacramento
+          </p>
+        </motion.div>
+
+        {/* Main Action Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-wrap gap-4 items-center justify-center pt-1"
         >
           <Button href="/menu" size="lg" variant="primary" arrow={true}>
             Explore Full Menu
@@ -188,12 +185,12 @@ export function InteractiveMotionHero() {
           </Button>
         </motion.div>
 
-        {/* Clean Authentic Amenities Row */}
+        {/* Clean Authentic Amenities Row (Breakfast & Free Parking Kept) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.55 }}
-          className="pt-6 border-t border-white/20 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs sm:text-sm text-white/90 font-medium"
+          transition={{ duration: 0.8, delay: 0.45 }}
+          className="pt-5 border-t border-white/25 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs sm:text-sm text-white/95 font-medium drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]"
         >
           <div className="flex items-center gap-2">
             <Utensils size={15} className="text-amber-400 shrink-0" />
