@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   List,
   ChevronRight,
+  ChevronDown,
   Info
 } from "lucide-react";
 import { menuCategories, type MenuItem } from "@/data/menu";
@@ -160,144 +161,178 @@ export default function MenuPage() {
           </p>
         </SectionReveal>
 
-        {/* ─── Controls & Search ────────────────────────────────── */}
+        {/* ─── Unified Menu Selection & Filter Bar ────────────────────────── */}
         <SectionReveal delay={0.15}>
-          <div className="mt-10 max-w-3xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
-            {/* Search Input */}
-            <div className="relative w-full md:w-2/3">
-              <Search
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-400"
-              />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search pancakes, prime rib, burgers, eggs..."
-                className="w-full pl-11 pr-10 py-3.5 bg-warm-white border border-brown-200 rounded-xl text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-terracotta shadow-sm transition-all font-body"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brown-400 hover:text-brown-700 p-1 cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
-              )}
+          <div className="mt-10 max-w-4xl mx-auto bg-warm-white border border-brown-200/90 rounded-2xl p-4 sm:p-6 shadow-xl shadow-brown-900/5">
+            {/* Primary Selection Controls */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 items-end">
+              {/* Category Selection Bar */}
+              <div className="lg:col-span-5 text-left">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-brown-700 font-bold mb-1.5 pl-1 flex items-center gap-1.5">
+                  <Utensils size={13} className="text-terracotta" />
+                  <span>Select Category</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => handleCategorySelect(e.target.value)}
+                    className="w-full pl-3.5 pr-10 py-3 bg-cream/70 hover:bg-cream border border-brown-200 rounded-xl text-sm font-semibold text-brown-900 appearance-none focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta transition-all cursor-pointer shadow-sm"
+                  >
+                    <option value="all">All Categories ({allItems.length} dishes)</option>
+                    {menuCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name} ({cat.items.length} dishes)
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    size={16}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brown-400 pointer-events-none"
+                  />
+                </div>
+              </div>
+
+              {/* Dietary Filter Selection */}
+              <div className="lg:col-span-4 text-left">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-brown-700 font-bold mb-1.5 pl-1 flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-amber-600" />
+                  <span>Dietary & Highlights</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedFilter}
+                    onChange={(e) => handleFilterSelect(e.target.value)}
+                    className="w-full pl-3.5 pr-10 py-3 bg-cream/70 hover:bg-cream border border-brown-200 rounded-xl text-sm font-semibold text-brown-900 appearance-none focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta transition-all cursor-pointer shadow-sm"
+                  >
+                    <option value="all">Show All Dishes ({filterCounts.all})</option>
+                    <option value="popular">⭐ Most Popular / House Legends ({filterCounts.popular})</option>
+                    <option value="vegetarian">🌿 Vegetarian Dishes ({filterCounts.vegetarian})</option>
+                    <option value="hearty">🥩 Hearty Platters ({filterCounts.hearty})</option>
+                  </select>
+                  <ChevronDown
+                    size={16}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brown-400 pointer-events-none"
+                  />
+                </div>
+              </div>
+
+              {/* Search Dishes */}
+              <div className="lg:col-span-3 text-left">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-brown-700 font-bold mb-1.5 pl-1 flex items-center gap-1.5">
+                  <Search size={13} className="text-brown-400" />
+                  <span>Search Menu</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search dishes..."
+                    className="w-full pl-3.5 pr-8 py-3 bg-cream/70 hover:bg-cream border border-brown-200 rounded-xl text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta shadow-sm transition-all"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-brown-400 hover:text-brown-700 p-1 cursor-pointer"
+                      title="Clear search"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-2 bg-cream p-1.5 rounded-xl border border-brown-200/70 self-end md:self-auto shadow-sm">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  viewMode === "grid"
-                    ? "bg-terracotta text-white shadow-sm"
-                    : "text-brown-700 hover:text-terracotta"
-                }`}
-              >
-                <LayoutGrid size={14} />
-                <span>Gallery</span>
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  viewMode === "list"
-                    ? "bg-terracotta text-white shadow-sm"
-                    : "text-brown-700 hover:text-terracotta"
-                }`}
-              >
-                <List size={14} />
-                <span>Details</span>
-              </button>
+            {/* Quick Segmented Categories Rail + View Switcher */}
+            <div className="mt-4 pt-4 border-t border-brown-200/60 flex flex-col md:flex-row items-center justify-between gap-3">
+              {/* Contained horizontal segmented bar */}
+              <div className="w-full md:w-auto overflow-x-auto flex items-center gap-1.5 p-1 bg-cream/80 rounded-xl border border-brown-200/70 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <button
+                  onClick={() => handleCategorySelect("all")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                    selectedCategory === "all"
+                      ? "bg-brown-900 text-white font-semibold shadow-sm"
+                      : "text-brown-700 hover:text-brown-900 hover:bg-white/60"
+                  }`}
+                >
+                  All ({allItems.length})
+                </button>
+                {menuCategories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategorySelect(cat.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                      selectedCategory === cat.id
+                        ? "bg-brown-900 text-white font-semibold shadow-sm"
+                        : "text-brown-700 hover:text-brown-900 hover:bg-white/60"
+                    }`}
+                  >
+                    {cat.name.replace(" & Handcrafted Sandwiches", "").replace(", Seafood & Dinner Classics", "")} ({cat.items.length})
+                  </button>
+                ))}
+              </div>
+
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1 p-1 bg-cream/80 rounded-xl border border-brown-200/70 shrink-0 self-end md:self-auto">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-terracotta text-white shadow-sm"
+                      : "text-brown-700 hover:text-terracotta"
+                  }`}
+                  title="Grid view"
+                >
+                  <LayoutGrid size={13} />
+                  <span className="hidden sm:inline">Gallery</span>
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    viewMode === "list"
+                      ? "bg-terracotta text-white shadow-sm"
+                      : "text-brown-700 hover:text-terracotta"
+                  }`}
+                  title="List view"
+                >
+                  <List size={13} />
+                  <span className="hidden sm:inline">Details</span>
+                </button>
+              </div>
             </div>
+
+            {/* Active Filter & Live Counter Indicator */}
+            {(selectedCategory !== "all" || selectedFilter !== "all" || searchQuery.trim()) && (
+              <div className="mt-3.5 pt-3 border-t border-brown-200/50 flex flex-wrap items-center justify-between gap-2 text-xs text-brown-700">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>
+                    Showing <strong className="text-brown-900 font-bold">{filteredItems.length}</strong> {filteredItems.length === 1 ? "dish" : "dishes"}
+                    {selectedCategory !== "all" && (
+                      <> in <strong className="text-brown-900">{currentCategoryInfo?.name}</strong></>
+                    )}
+                    {selectedFilter !== "all" && (
+                      <> with filter <strong className="text-terracotta font-semibold">
+                        {selectedFilter === "popular" ? "Most Popular" : selectedFilter === "vegetarian" ? "Vegetarian" : "Hearty Platters"}
+                      </strong></>
+                    )}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedCategory("all");
+                    setSelectedFilter("all");
+                    setSearchQuery("");
+                  }}
+                  className="text-terracotta font-bold hover:underline cursor-pointer flex items-center gap-1 text-xs"
+                >
+                  <X size={13} />
+                  Reset all filters
+                </button>
+              </div>
+            )}
           </div>
         </SectionReveal>
-
-        {/* ─── Category Tabs (Clean Wrap, No Clipping) ────────── */}
-        <div className="mt-8 flex flex-wrap gap-2.5 items-center justify-center max-w-5xl mx-auto px-2">
-          <button
-            onClick={() => handleCategorySelect("all")}
-            className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-              selectedCategory === "all"
-                ? "bg-brown-900 text-white shadow-md font-bold ring-2 ring-brown-900 ring-offset-2 scale-105"
-                : "bg-warm-white text-brown-700 hover:bg-cream border border-brown-200/80 shadow-sm"
-            }`}
-          >
-            All Items ({allItems.length})
-          </button>
-          {menuCategories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategorySelect(cat.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                selectedCategory === cat.id
-                  ? "bg-brown-900 text-white shadow-md font-bold ring-2 ring-brown-900 ring-offset-2 scale-105"
-                  : "bg-warm-white text-brown-700 hover:bg-cream border border-brown-200/80 shadow-sm"
-              }`}
-            >
-              {cat.name} ({cat.items.length})
-            </button>
-          ))}
-        </div>
-
-        {/* ─── Quick Filter Chips with Real Counts ────────────── */}
-        <div className="mt-4 flex flex-wrap gap-2.5 justify-center items-center">
-          {[
-            { id: "all", label: "Show All", count: filterCounts.all },
-            { id: "popular", label: "⭐ Most Popular / House Legends", count: filterCounts.popular },
-            { id: "vegetarian", label: "🌿 Vegetarian", count: filterCounts.vegetarian },
-            { id: "hearty", label: "🥩 Hearty Platters", count: filterCounts.hearty },
-          ].map((chip) => (
-            <button
-              key={chip.id}
-              onClick={() => handleFilterSelect(chip.id)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-2 ${
-                selectedFilter === chip.id
-                  ? "bg-terracotta text-white shadow-md font-semibold scale-105"
-                  : "bg-warm-white text-brown-700 hover:bg-cream border border-brown-200/70 shadow-sm"
-              }`}
-            >
-              <span>{chip.label}</span>
-              <span
-                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                  selectedFilter === chip.id
-                    ? "bg-white/25 text-white"
-                    : "bg-brown-100 text-brown-700"
-                }`}
-              >
-                {chip.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* ─── Active Filter Status & Reset Banner ────────────── */}
-        {(selectedCategory !== "all" || selectedFilter !== "all" || searchQuery.trim()) && (
-          <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-full bg-cream border border-brown-200/80 text-xs text-brown-700 shadow-sm">
-            <span>
-              Showing <strong className="text-brown-900 font-bold">{filteredItems.length}</strong> {filteredItems.length === 1 ? "dish" : "dishes"}
-              {selectedCategory !== "all" && (
-                <> in <strong className="text-brown-900">{currentCategoryInfo?.name}</strong></>
-              )}
-              {selectedFilter !== "all" && (
-                <> with filter <strong className="text-terracotta font-semibold">
-                  {selectedFilter === "popular" ? "Most Popular" : selectedFilter === "vegetarian" ? "Vegetarian" : "Hearty Platters"}
-                </strong></>
-              )}
-            </span>
-            <button
-              onClick={() => {
-                setSelectedCategory("all");
-                setSelectedFilter("all");
-                setSearchQuery("");
-              }}
-              className="ml-2 text-terracotta font-bold underline hover:text-terracotta-dark cursor-pointer text-xs"
-            >
-              Reset all filters
-            </button>
-          </div>
-        )}
       </section>
 
       {/* ─── Main Menu Items Display ─────────────────────────── */}
