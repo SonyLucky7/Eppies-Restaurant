@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, MouseEvent } from "react";
+import { useState, useRef, useEffect, MouseEvent } from "react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import {
   Phone,
@@ -37,6 +37,21 @@ export function InteractiveMotionHero() {
   const [activeScene, setActiveScene] = useState(0);
   const containerRef = useRef<HTMLElement>(null);
 
+  // Auto-scroll / transition background scenes smoothly every 5.5 seconds
+  useEffect(() => {
+    // Preload all high-res scenes into browser cache
+    heroScenes.forEach((scene) => {
+      const img = new Image();
+      img.src = scene.image;
+    });
+
+    const interval = setInterval(() => {
+      setActiveScene((prev) => (prev + 1) % heroScenes.length);
+    }, 5500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // 3D Parallax Tilt with Damped Spring Physics
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -44,16 +59,16 @@ export function InteractiveMotionHero() {
   const springConfig = { damping: 30, stiffness: 180, mass: 0.6 };
 
   // Background shifts gently in the opposite direction of mouse
-  const bgX = useSpring(useTransform(mouseX, [-0.5, 0.5], [24, -24]), springConfig);
-  const bgY = useSpring(useTransform(mouseY, [-0.5, 0.5], [16, -16]), springConfig);
+  const bgX = useSpring(useTransform(mouseX, [-0.5, 0.5], [20, -20]), springConfig);
+  const bgY = useSpring(useTransform(mouseY, [-0.5, 0.5], [14, -14]), springConfig);
 
   // Foreground text has subtle optical 3D tilt
-  const textRotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
-  const textRotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), springConfig);
+  const textRotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), springConfig);
+  const textRotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
 
   // Interactive subtle lighting glow following cursor
-  const cursorGlowX = useSpring(useTransform(mouseX, [-0.5, 0.5], ["25%", "75%"]), springConfig);
-  const cursorGlowY = useSpring(useTransform(mouseY, [-0.5, 0.5], ["25%", "75%"]), springConfig);
+  const cursorGlowX = useSpring(useTransform(mouseX, [-0.5, 0.5], ["30%", "70%"]), springConfig);
+  const cursorGlowY = useSpring(useTransform(mouseY, [-0.5, 0.5], ["30%", "70%"]), springConfig);
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
     if (!containerRef.current) return;
@@ -76,9 +91,9 @@ export function InteractiveMotionHero() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative min-h-screen w-full flex items-center justify-start overflow-hidden bg-brown-900 pt-32 pb-20 px-6 sm:px-12 lg:px-20 select-none"
+      className="relative min-h-[92vh] sm:min-h-screen w-full flex items-center justify-center overflow-hidden bg-brown-900 pt-28 pb-20 px-6 sm:px-12 select-none"
     >
-      {/* ─── Full-Covered 4K Background Image with 3D Parallax ─── */}
+      {/* ─── Full-Covered 4K Background Image with Smooth Crossfade & Parallax ─── */}
       <motion.div
         style={{
           x: bgX,
@@ -87,16 +102,16 @@ export function InteractiveMotionHero() {
         }}
         className="absolute inset-0 w-full h-full pointer-events-none"
       >
-        <AnimatePresence mode="sync">
+        <AnimatePresence mode="popLayout">
           <motion.img
             key={currentScene.id}
             src={currentScene.image}
             alt={currentScene.alt}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full object-cover object-center"
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            className="w-full h-full object-cover object-center absolute inset-0"
             style={{
               imageRendering: "-webkit-optimize-contrast",
             }}
@@ -105,9 +120,10 @@ export function InteractiveMotionHero() {
           />
         </AnimatePresence>
 
-        {/* Cinematic Multi-Layer Dark Gradients for 100% Typographic Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/92 via-black/70 to-black/35" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
+        {/* Cinematic Multi-Layer Dark Gradients for Typographic Contrast */}
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
 
         {/* Subtle Interactive Ambient Lighting Highlight */}
         <motion.div
@@ -115,43 +131,28 @@ export function InteractiveMotionHero() {
             left: cursorGlowX,
             top: cursorGlowY,
           }}
-          className="absolute -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none"
+          className="absolute -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none"
         />
       </motion.div>
 
-      {/* ─── Foreground: Only Main Text & Essential CTAs ─── */}
+      {/* ─── Foreground: Balanced Centered Hero Composition ─── */}
       <motion.div
         style={{
           rotateX: textRotateX,
           rotateY: textRotateY,
           transformStyle: "preserve-3d",
         }}
-        className="relative z-10 max-w-4xl space-y-7"
+        className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center space-y-8"
       >
-        {/* Authentic Top Pill */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/45 backdrop-blur-md border border-white/20 text-xs font-semibold tracking-wider text-amber-300 shadow-xl"
-        >
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-          <span>Family-Owned Since 1980s · 4025 Lake Road</span>
-          <span className="text-white/40 hidden sm:inline">|</span>
-          <span className="text-white/90 hidden sm:inline">Open Daily 7:00 AM – 8:30 PM</span>
-        </motion.div>
-
         {/* Main Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[5.75rem] font-bold tracking-tight text-white leading-[0.98] text-balance drop-shadow-md"
+          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[5.5rem] font-bold tracking-tight text-white leading-[1.0] text-balance drop-shadow-xl"
           style={{ fontFamily: "var(--font-display), 'Playfair Display', Georgia, serif" }}
         >
-          Good Food.
-          <br />
-          Good People.
+          Good Food. Good People.
           <br />
           <span className="italic font-normal text-amber-300">Over 40 Years.</span>
         </motion.h1>
@@ -161,7 +162,7 @@ export function InteractiveMotionHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25 }}
-          className="text-lg sm:text-xl md:text-2xl text-cream/90 max-w-2xl leading-relaxed font-body font-normal drop-shadow-sm"
+          className="text-lg sm:text-xl md:text-2xl text-cream/95 max-w-2xl mx-auto leading-relaxed font-body font-normal drop-shadow-md"
         >
           A true West Sacramento landmark. From sunrise buttermilk hotcakes and fresh country scrambles to our award-winning hand-carved Friday Night Prime Rib.
         </motion.p>
@@ -171,7 +172,7 @@ export function InteractiveMotionHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap gap-4 items-center pt-2"
+          className="flex flex-wrap gap-4 items-center justify-center pt-2"
         >
           <Button href="/menu" size="lg" variant="primary" arrow={true}>
             Explore Full Menu
@@ -192,7 +193,7 @@ export function InteractiveMotionHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.55 }}
-          className="pt-6 border-t border-white/20 flex flex-wrap items-center gap-5 sm:gap-7 text-xs sm:text-sm text-white/85 font-medium"
+          className="pt-6 border-t border-white/20 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs sm:text-sm text-white/90 font-medium"
         >
           <div className="flex items-center gap-2">
             <Utensils size={15} className="text-amber-400 shrink-0" />
@@ -209,23 +210,19 @@ export function InteractiveMotionHero() {
         </motion.div>
       </motion.div>
 
-      {/* ─── Discreet 4K Scene Switcher (Bottom-Right) ─── */}
-      <div className="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-2 bg-black/45 backdrop-blur-md p-1.5 rounded-full border border-white/20 shadow-xl">
-        <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 pl-3 pr-1 font-bold">
-          4K View:
-        </span>
+      {/* ─── Minimal Unobtrusive Auto-Scroll Pagination Indicators (Bottom Center) ─── */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
         {heroScenes.map((scene, idx) => (
           <button
             key={scene.id}
             onClick={() => setActiveScene(idx)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${
+            aria-label={`Switch to ${scene.label}`}
+            className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
               activeScene === idx
-                ? "bg-white text-brown-900 font-bold shadow-md"
-                : "text-white/70 hover:text-white"
+                ? "w-8 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]"
+                : "w-2 bg-white/40 hover:bg-white/70"
             }`}
-          >
-            {scene.label}
-          </button>
+          />
         ))}
       </div>
     </section>
