@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   List,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   Info
 } from "lucide-react";
@@ -27,6 +28,78 @@ export default function MenuPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeModalItem, setActiveModalItem] = useState<MenuItem | null>(null);
+
+  // Horizontal Category Rail Scroll state and handlers
+  const categoryRailRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (!categoryRailRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = categoryRailRef.current;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 4);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, []);
+
+  const scrollRail = (direction: "left" | "right") => {
+    if (!categoryRailRef.current) return;
+    const scrollAmount = 240;
+    categoryRailRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+    setTimeout(checkScroll, 350);
+  };
+
+  // Convert mouse wheel vertical scroll to horizontal scroll
+  const handleRailWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (!categoryRailRef.current) return;
+    if (e.deltaY !== 0) {
+      categoryRailRef.current.scrollLeft += e.deltaY;
+      checkScroll();
+    }
+  };
+
+  // Drag-to-scroll with mouse
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftPos = useRef(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!categoryRailRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - categoryRailRef.current.offsetLeft;
+    scrollLeftPos.current = categoryRailRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current || !categoryRailRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - categoryRailRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    categoryRailRef.current.scrollLeft = scrollLeftPos.current - walk;
+    checkScroll();
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDragging.current = false;
+  };
+
+  // Auto-scroll selected category pill into view
+  useEffect(() => {
+    if (!categoryRailRef.current) return;
+    const activeBtn = categoryRailRef.current.querySelector<HTMLElement>(`[data-category-id="${selectedCategory}"]`);
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+    setTimeout(checkScroll, 350);
+  }, [selectedCategory]);
 
   // All items flattened
   const allItems = useMemo(() => {
@@ -245,31 +318,75 @@ export default function MenuPage() {
 
             {/* Quick Segmented Categories Rail + View Switcher */}
             <div className="mt-4 pt-4 border-t border-brown-200/60 flex flex-col md:flex-row items-center justify-between gap-3">
-              {/* Contained horizontal segmented bar */}
-              <div className="w-full md:w-auto overflow-x-auto flex items-center gap-1.5 p-1 bg-cream/80 rounded-xl border border-brown-200/70 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {/* Category Rail with Left & Right Clickable Arrows */}
+              <div className="relative flex items-center w-full md:flex-1 min-w-0">
+                {/* Left Scroll Arrow */}
                 <button
-                  onClick={() => handleCategorySelect("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
-                    selectedCategory === "all"
-                      ? "bg-brown-900 text-white font-semibold shadow-sm"
-                      : "text-brown-700 hover:text-brown-900 hover:bg-white/60"
+                  onClick={() => scrollRail("left")}
+                  disabled={!canScrollLeft}
+                  aria-label="Scroll categories left"
+                  title="Scroll left"
+                  className={`p-1.5 rounded-lg border border-brown-200/80 bg-cream/90 text-brown-700 mr-1.5 shrink-0 transition-all cursor-pointer shadow-sm ${
+                    canScrollLeft
+                      ? "hover:bg-brown-900 hover:text-white opacity-100"
+                      : "opacity-30 cursor-not-allowed"
                   }`}
                 >
-                  All ({allItems.length})
+                  <ChevronLeft size={14} />
                 </button>
-                {menuCategories.map((cat) => (
+
+                {/* Scrollable Track (Supports Mouse Wheel, Dragging, Touch & Arrows) */}
+                <div
+                  ref={categoryRailRef}
+                  onWheel={handleRailWheel}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUpOrLeave}
+                  onMouseLeave={handleMouseUpOrLeave}
+                  onScroll={checkScroll}
+                  className="flex-1 min-w-0 overflow-x-auto flex items-center gap-1.5 p-1 bg-cream/80 rounded-xl border border-brown-200/70 scroll-smooth select-none cursor-grab active:cursor-grabbing [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                >
                   <button
-                    key={cat.id}
-                    onClick={() => handleCategorySelect(cat.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
-                      selectedCategory === cat.id
+                    data-category-id="all"
+                    onClick={() => handleCategorySelect("all")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                      selectedCategory === "all"
                         ? "bg-brown-900 text-white font-semibold shadow-sm"
                         : "text-brown-700 hover:text-brown-900 hover:bg-white/60"
                     }`}
                   >
-                    {cat.name.replace(" & Handcrafted Sandwiches", "").replace(", Seafood & Dinner Classics", "")} ({cat.items.length})
+                    All ({allItems.length})
                   </button>
-                ))}
+                  {menuCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      data-category-id={cat.id}
+                      onClick={() => handleCategorySelect(cat.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                        selectedCategory === cat.id
+                          ? "bg-brown-900 text-white font-semibold shadow-sm"
+                          : "text-brown-700 hover:text-brown-900 hover:bg-white/60"
+                      }`}
+                    >
+                      {cat.name.replace(" & Handcrafted Sandwiches", "").replace(", Seafood & Dinner Classics", "")} ({cat.items.length})
+                    </button>
+                  ))}
+                </div>
+
+                {/* Right Scroll Arrow */}
+                <button
+                  onClick={() => scrollRail("right")}
+                  disabled={!canScrollRight}
+                  aria-label="Scroll categories right"
+                  title="Scroll right"
+                  className={`p-1.5 rounded-lg border border-brown-200/80 bg-cream/90 text-brown-700 ml-1.5 shrink-0 transition-all cursor-pointer shadow-sm ${
+                    canScrollRight
+                      ? "hover:bg-brown-900 hover:text-white opacity-100"
+                      : "opacity-30 cursor-not-allowed"
+                  }`}
+                >
+                  <ChevronRight size={14} />
+                </button>
               </div>
 
               {/* View Mode Toggle */}
