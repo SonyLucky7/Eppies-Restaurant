@@ -1,5 +1,7 @@
 # Eppies Restaurant — Modern Digital Presence
 
+[![Sponsor SonyLucky7](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/SonyLucky7)
+
 A modern, clean, and interactive website for **Eppies Restaurant** — West Sacramento's beloved family dining landmark serving the community for over 40 years.
 
 ---
@@ -73,3 +75,7 @@ npm start
 ## 📄 License
 
 Private repository for Eppies Restaurant. All rights reserved.
+
+## 💖 Sponsor
+
+If you find this project useful, consider [sponsoring me on GitHub](https://github.com/sponsors/SonyLucky7) — your support helps me keep building open-source tools.
